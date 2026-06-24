@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Claude for Opera GX",
+  "version": "1.2.0",
+  "description": "Chatta con Claude in una sidebar laterale, su qualsiasi pagina. Compatibile con Opera GX.",
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus"],
+  "host_permissions": ["https://api.anthropic.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Apri Claude (Alt+C)"
+  },
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidebar/sidebar.html", "sidebar/sidebar.css", "sidebar/sidebar.js", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "commands": {
+    "toggle-sidebar": {
+      "suggested_key": { "default": "Alt+C" },
+      "description": "Apri/chiudi la sidebar di Claude"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

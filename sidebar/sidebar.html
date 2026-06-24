@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="sidebar.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="bar">
+      <div class="brand">
+        <span class="spark"></span>
+        <span class="brand-name">Claude</span>
+        <span class="brand-tag">GX</span>
+      </div>
+      <div class="bar-actions">
+        <select id="model" class="model" title="Modello"></select>
+        <button id="clear" class="icon-btn" title="Nuova conversazione" aria-label="Nuova conversazione">⟲</button>
+        <button id="settings" class="icon-btn" title="Impostazioni" aria-label="Impostazioni">⚙</button>
+        <button id="close" class="icon-btn" title="Chiudi" aria-label="Chiudi">✕</button>
+      </div>
+    </header>
+
+    <main id="thread" class="thread">
+      <div id="empty" class="empty">
+        <div class="empty-mark"></div>
+        <p class="empty-title">Pronto quando vuoi</p>
+        <p class="empty-sub">Scrivi un messaggio, oppure seleziona del testo in pagina e usa il tasto destro → "Chiedi a Claude".</p>
+      </div>
+    </main>
+
+    <footer class="composer">
+      <div id="key-warning" class="warning hidden">
+        Nessuna API key impostata. <button id="open-settings-inline" class="link">Aprila nelle impostazioni</button>.
+      </div>
+      <div class="input-row">
+        <button id="page-toggle" class="page-toggle" title="Includi il contenuto della pagina nella domanda" aria-label="Includi pagina">📄</button>
+        <textarea id="input" rows="1" placeholder="Chiedi a Claude…"></textarea>
+        <button id="send" class="send" title="Invia (Invio)" aria-label="Invia">↑</button>
+      </div>
+      <div class="hint"><span id="page-status"></span>Invio per inviare · Shift+Invio per andare a capo</div>
+    </footer>
+  </div>
+
+  <script src="sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Settings esportati (possono contenere la API key)
+claude-gx-settings.json
+
+# Claude Code
+CLAUDE.md
+
+# File di sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Node (se mai usato per build)
+node_modules/
+dist/

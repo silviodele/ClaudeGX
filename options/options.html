@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude for Opera GX — Impostazioni</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main class="card">
+    <div class="head">
+      <span class="spark"></span>
+      <h1>Claude <span class="tag">GX</span></h1>
+    </div>
+    <p class="lead">Configura l'estensione. La chiave resta salvata solo in locale, nel tuo browser.</p>
+
+    <label class="field">
+      <span class="label">API key di Anthropic</span>
+      <div class="key-row">
+        <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+        <button id="toggle" type="button" class="ghost" title="Mostra/nascondi">👁</button>
+      </div>
+      <span class="help">La generi su <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> → API Keys.</span>
+    </label>
+
+    <label class="field">
+      <span class="label">Modello predefinito</span>
+      <select id="model"></select>
+    </label>
+
+    <div class="actions">
+      <button id="save" class="primary">Salva</button>
+      <span id="status" class="status"></span>
+    </div>
+
+    <div class="backup">
+      <p class="backup-title">Backup impostazioni</p>
+      <p class="backup-sub">Salva la chiave in un file per non doverla reinserire dopo un reinstallo o su un altro PC.</p>
+      <div class="backup-row">
+        <button id="export" class="ghost-wide">↓ Esporta</button>
+        <button id="import" class="ghost-wide">↑ Importa</button>
+        <input id="import-file" type="file" accept="application/json" hidden />
+      </div>
+    </div>
+
+    <div class="tips">
+      <p><strong>Come si usa</strong></p>
+      <ul>
+        <li>Clicca l'icona dell'estensione, oppure premi <kbd>Alt</kbd>+<kbd>C</kbd>, per aprire/chiudere la sidebar.</li>
+        <li>Seleziona testo in una pagina → tasto destro → <em>Chiedi a Claude</em>.</li>
+      </ul>
+    </div>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>
