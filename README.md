@@ -12,6 +12,7 @@ directly connected to the API, no server in between.
 ![Manifest V3](https://img.shields.io/badge/Manifest-V3-7c6cd1?style=flat-square)
 ![Opera GX](https://img.shields.io/badge/Opera_GX-ready-cc4e2a?style=flat-square&logo=opera&logoColor=white)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-zero-3a9e6e?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 </div>
 
