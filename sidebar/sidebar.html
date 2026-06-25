@@ -14,10 +14,16 @@
         <span class="brand-tag">GX</span>
       </div>
       <div class="bar-actions">
-        <select id="model" class="model" title="Modello"></select>
-        <button id="clear" class="icon-btn" title="Nuova conversazione" aria-label="Nuova conversazione">⟲</button>
-        <button id="settings" class="icon-btn" title="Impostazioni" aria-label="Impostazioni">⚙</button>
-        <button id="close" class="icon-btn" title="Chiudi" aria-label="Chiudi">✕</button>
+        <select id="model" class="model" title="Modello" aria-label="Modello"></select>
+        <button id="clear" class="icon-btn" title="Nuova conversazione" aria-label="Nuova conversazione">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button id="settings" class="icon-btn" title="Impostazioni" aria-label="Impostazioni">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        </button>
+        <button id="close" class="icon-btn" title="Chiudi" aria-label="Chiudi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
     </header>
 
@@ -34,9 +40,13 @@
         Nessuna API key impostata. <button id="open-settings-inline" class="link">Aprila nelle impostazioni</button>.
       </div>
       <div class="input-row">
-        <button id="page-toggle" class="page-toggle" title="Includi il contenuto della pagina nella domanda" aria-label="Includi pagina">📄</button>
+        <button id="page-toggle" class="page-toggle" title="Includi il contenuto della pagina nella domanda" aria-label="Includi il contenuto della pagina" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        </button>
         <textarea id="input" rows="1" placeholder="Chiedi a Claude…"></textarea>
-        <button id="send" class="send" title="Invia (Invio)" aria-label="Invia">↑</button>
+        <button id="send" class="send" title="Invia (Invio)" aria-label="Invia" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+        </button>
       </div>
       <div class="hint"><span id="page-status"></span>Invio per inviare · Shift+Invio per andare a capo</div>
     </footer>
