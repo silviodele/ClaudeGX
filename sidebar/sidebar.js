@@ -50,20 +50,28 @@ MODELS.forEach((m) => {
     if (history.length) els.empty.classList.add("hidden");
   }
   els.warning.classList.toggle("hidden", !!apiKey);
+  updateSendState();
 })();
 
 els.pageToggle.addEventListener("click", () => {
   includePage = !includePage;
   els.pageToggle.classList.toggle("active", includePage);
-  els.pageStatus.textContent = includePage ? "📄 pagina inclusa · " : "";
+  els.pageToggle.setAttribute("aria-pressed", String(includePage));
+  els.pageStatus.textContent = includePage ? "Pagina inclusa · " : "";
   els.pageStatus.style.color = includePage ? "var(--accent)" : "";
 });
 
 // ---- UI events -------------------------------------------------------------
 
+// Send reflects whether there's anything to send (and isn't mid-stream).
+function updateSendState() {
+  els.send.disabled = busy || els.input.value.trim() === "";
+}
+
 els.input.addEventListener("input", () => {
   els.input.style.height = "auto";
   els.input.style.height = Math.min(els.input.scrollHeight, 160) + "px";
+  updateSendState();
 });
 
 els.input.addEventListener("keydown", (e) => {
@@ -117,6 +125,7 @@ async function submit() {
   els.empty.classList.add("hidden");
   els.input.value = "";
   els.input.style.height = "auto";
+  updateSendState();
 
   // Se richiesto, allega il contenuto della pagina come contesto.
   let apiContent = text;
@@ -139,31 +148,37 @@ async function submit() {
   history.push({ role: "user", content: apiContent, display: text, withPage });
   renderMessage("user", text, false, withPage);
 
+  streamAssistant();
+}
+
+// Streams one assistant turn against the current history.
+// Reused by submit() and by the "Riprova" action after an error.
+function streamAssistant() {
   busy = true;
-  els.send.disabled = true;
+  updateSendState();
 
   const assistantEl = renderMessage("assistant", "", true);
   const bubble = assistantEl.querySelector(".bubble");
-  bubble.classList.add("cursor");
+  // "Thinking" indicator until the first token arrives.
+  bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
 
   let acc = "";
+  let started = false;
   const port = chrome.runtime.connect({ name: "claude-stream" });
 
   port.onMessage.addListener((msg) => {
     if (msg.type === "DELTA") {
+      if (!started) {
+        started = true;
+        bubble.classList.add("cursor");
+      }
       acc += msg.text;
       bubble.innerHTML = renderMarkdown(acc);
       scrollToBottom();
     } else if (msg.type === "DONE") {
       finish();
     } else if (msg.type === "ERROR") {
-      bubble.classList.remove("cursor");
-      const m = msg.error === "NO_KEY"
-        ? "API key mancante. Aprila nelle impostazioni."
-        : "Errore: " + msg.error;
-      bubble.innerHTML = `<p style="color:#ff8095">${escapeHtml(m)}</p>`;
-      // rimuovi il turn assistant fallito dalla storia
-      teardown();
+      fail(msg.error);
     }
   });
 
@@ -172,13 +187,36 @@ async function submit() {
     if (acc.trim()) {
       history.push({ role: "assistant", content: acc });
       chrome.storage.local.set({ history });
+    } else {
+      assistantEl.remove();
     }
+    teardown();
+  }
+
+  function fail(error) {
+    const message = error === "NO_KEY"
+      ? "Nessuna API key impostata. Aprila nelle impostazioni."
+      : "Qualcosa è andato storto: " + error;
+    assistantEl.className = "msg error";
+    bubble.classList.remove("cursor");
+    bubble.innerHTML = `<p>${escapeHtml(message)}</p>`;
+
+    const retry = document.createElement("button");
+    retry.className = "retry";
+    retry.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Riprova';
+    retry.addEventListener("click", () => {
+      assistantEl.remove();
+      streamAssistant();
+    });
+    assistantEl.appendChild(retry);
+    scrollToBottom();
     teardown();
   }
 
   function teardown() {
     busy = false;
-    els.send.disabled = false;
+    updateSendState();
     try { port.disconnect(); } catch (_) {}
     els.input.focus();
   }
@@ -208,7 +246,7 @@ function renderMessage(role, content, returnEl = false, withPage = false) {
   if (withPage) {
     const badge = document.createElement("span");
     badge.className = "badge-page";
-    badge.textContent = "📄 con contenuto pagina";
+    badge.textContent = "Pagina inclusa";
     wrap.appendChild(badge);
   }
   els.thread.appendChild(wrap);
@@ -253,30 +291,38 @@ function renderMarkdown(text) {
     return `\u0000${codeBlocks.length - 1}\u0000`;
   });
 
-  let html = escapeHtml(text);
-
-  // inline code
-  html = html.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
-  // bold
-  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  // italic
-  html = html.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
-
-  // liste e paragrafi
+  const html = escapeHtml(text);
   const lines = html.split("\n");
   let out = "";
-  let inList = false;
-  for (let line of lines) {
-    if (/^\s*[-*]\s+/.test(line)) {
-      if (!inList) { out += "<ul>"; inList = true; }
-      out += "<li>" + line.replace(/^\s*[-*]\s+/, "") + "</li>";
-    } else {
-      if (inList) { out += "</ul>"; inList = false; }
-      if (line.trim() === "") out += "";
-      else out += "<p>" + line + "</p>";
-    }
+  let listType = null; // "ul" | "ol" | null
+
+  const closeList = () => { if (listType) { out += `</${listType}>`; listType = null; } };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Segnaposto di un blocco di codice da solo: niente <p> attorno.
+    if (/^ \d+ $/.test(trimmed)) { closeList(); out += trimmed; continue; }
+    // Riga orizzontale (---, ***, ___).
+    if (/^\s*([-*_])\1{2,}\s*$/.test(line)) { closeList(); out += "<hr>"; continue; }
+    // Titoli (# .. ###).
+    const h = line.match(/^\s*(#{1,6})\s+(.*)$/);
+    if (h) { closeList(); const lvl = Math.min(h[1].length, 3); out += `<h${lvl}>${inlineMarkdown(h[2])}</h${lvl}>`; continue; }
+    // Citazione.
+    const bq = line.match(/^\s*>\s?(.*)$/);
+    if (bq) { closeList(); out += `<blockquote>${inlineMarkdown(bq[1])}</blockquote>`; continue; }
+    // Lista numerata.
+    const ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (ol) { if (listType !== "ol") { closeList(); out += "<ol>"; listType = "ol"; } out += `<li>${inlineMarkdown(ol[1])}</li>`; continue; }
+    // Lista puntata.
+    const ul = line.match(/^\s*[-*]\s+(.*)$/);
+    if (ul) { if (listType !== "ul") { closeList(); out += "<ul>"; listType = "ul"; } out += `<li>${inlineMarkdown(ul[1])}</li>`; continue; }
+    // Riga vuota.
+    if (trimmed === "") { closeList(); continue; }
+    // Paragrafo.
+    closeList();
+    out += `<p>${inlineMarkdown(line)}</p>`;
   }
-  if (inList) out += "</ul>";
+  closeList();
 
   // ripristina i blocchi di codice
   out = out.replace(/\u0000(\d+)\u0000/g, (_, i) => codeBlocks[+i]);
