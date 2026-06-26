@@ -281,6 +281,27 @@ function escapeHtml(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// Formattazione inline (su testo già HTML-escaped): codice, link, grassetto, corsivo.
+function inlineMarkdown(text) {
+  // Codice inline `...` — protegge il contenuto dalle altre regole.
+  const codeSpans = [];
+  text = text.replace(/`([^`]+)`/g, (_, c) => {
+    codeSpans.push(`<code>${c}</code>`);
+    return `${codeSpans.length - 1}`;
+  });
+  // Link [testo](url) — solo schemi sicuri.
+  text = text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => {
+    if (!/^(https?:|mailto:)/i.test(url)) return m;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+  });
+  // Grassetto **...**
+  text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  // Corsivo *...*
+  text = text.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+  // Ripristina il codice inline.
+  return text.replace(/(\d+)/g, (_, i) => codeSpans[+i]);
+}
+
 // Mini renderer Markdown (no librerie esterne, sicuro per CSP).
 function renderMarkdown(text) {
   if (!text) return "";
