@@ -50,7 +50,7 @@ New-Item -ItemType Directory -Force -Path $staging | Out-Null
 foreach ($item in $include) {
     $src = Join-Path $root $item
     if (-not (Test-Path $src)) {
-        Write-Warning "Manca '$item' — lo salto."
+        Write-Warning "Manca '$item' - lo salto."
         continue
     }
     Copy-Item $src -Destination $staging -Recurse -Force
